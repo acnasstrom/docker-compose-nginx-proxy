@@ -44,5 +44,5 @@ dcimweb:
     - api-app
   ports:
     - "8080:8080"
-  command: java -jar ./api-app/build/web-app.jar
+  command: java -jar ./web-app/build/web-app.jar
  
