@@ -1,0 +1,48 @@
+# docker-compose.yml
+# See https://github.com/jwilder/nginx-proxy
+nginx-proxy:
+  image: jwilder/nginx-proxy
+  ports:
+    - "80:80"
+  links:
+    - api-app
+    - web-app
+  volumes:
+    - /var/run/docker.sock:/tmp/docker.sock:ro
+    - ./nginx-config/:/etc/nginx/conf.d
+api-db:
+  image: postgres:9.4
+  environment:
+    - POSTGRES_USER=dbuser
+    - POSTGRES_PASSWORD=dbpassword
+  volumes:
+    - ./postgresql/data:/var/lib/postgresql/data
+  ports:
+    - "5432:5432"
+dcimapi:
+  image: java:8
+  environment:
+    - VIRTUAL_HOST=api-app
+    - VIRTUAL_PORT=8081
+  volumes:
+    - ./api-app:/code
+  working_dir: /code
+  links:
+    - api-db
+  ports:
+    - "8081:8081"
+  command: java -jar ./api-app/build/api-app.jar
+dcimweb:
+  image: java:8
+  environment:
+    - VIRTUAL_HOST=web-app
+    - VIRTUAL_PORT=8080
+  volumes:
+    - ./web-app:/code
+  working_dir: /code
+  links:
+    - api-app
+  ports:
+    - "8080:8080"
+  command: java -jar ./api-app/build/web-app.jar
+ 
